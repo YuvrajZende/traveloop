@@ -1,221 +1,134 @@
-# Traveloop Backend API
+# 🌍 Traveloop — Personalized Travel Planning Platform
 
-Node.js + Express + PostgreSQL backend for Screens 1–5.
+**Traveloop** is a premium, full-stack travel planning application designed to take you from inspiration to itinerary. Build complex trips, manage budgets, coordinate packing lists, and share your adventures with a global community.
 
----
-
-## Project Structure
-
-```
-traveloop-backend/
-├── src/
-│   ├── app.js                  # Express app + server entry point
-│   ├── config/
-│   │   ├── db.js               # PostgreSQL pool connection
-│   │   ├── schema.sql          # All table definitions + seed data
-│   │   └── migrate.js          # Run migration script
-│   ├── middleware/
-│   │   ├── auth.js             # JWT authentication middleware
-│   │   └── errorHandler.js     # Validation + global error handler
-│   └── routes/
-│       ├── auth.js             # Screen 1 & 2: login, register, tokens
-│       ├── users.js            # Screen 2: profile, photo upload
-│       ├── places.js           # Screen 3 & 4: featured places, search
-│       ├── trips.js            # Screen 3 & 4: CRUD trips
-│       └── sections.js         # Screen 5: itinerary sections
-├── uploads/                    # Profile photo storage
-├── .env.example                # Environment variable template
-└── package.json
-```
+![Traveloop Banner](https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&q=80)
 
 ---
 
-## Quick Setup
+## 🚀 Features
 
-### 1. Install dependencies
+### 📋 Smart Trip Planning
+- **Interactive Itinerary Builder:** Create multiple sections for travel, stays, and activities.
+- **Live Summary Dashboard:** Real-time calculation of trip duration, budget utilization, and activity counts.
+- **Trip Notes & Journaling:** Keep track of booking IDs, contacts, and memories directly linked to your trips.
+
+### 🎒 Organized Preparation
+- **Dynamic Packing Checklist:** Category-aware checklist with live CRUD operations and optimistic UI updates.
+- **Budget Tracking:** Manage estimated costs across your entire itinerary to stay on track.
+
+### 🔍 Explore & Discover
+- **Activity & City Search:** Search across thousands of activities and cities with advanced filtering by type, duration, and cost.
+- **Top Regional Selections:** Curated, high-quality travel inspiration right on your dashboard.
+
+### 🤝 Community & Social
+- **Community Hub:** Share your trip experiences, ask questions, and interact with other travelers.
+- **Live Identity Integration:** Posts and replies are automatically linked to your authenticated profile.
+
+---
+
+## 🛠️ Tech Stack
+
+### **Frontend**
+- **Framework:** Next.js 15 (App Router)
+- **Styling:** Tailwind CSS + Shadcn UI
+- **State Management:** React Hooks (useState, useEffect, useCallback)
+- **Icons:** Lucide React
+- **Animations:** Framer Motion
+
+### **Backend**
+- **Environment:** Node.js + Express
+- **Database:** PostgreSQL
+- **Authentication:** JWT (JSON Web Tokens) with Secure Storage
+- **Middleware:** RBAC (Role-Based Access Control), Error Handling
+
+---
+
+## 🚦 Getting Started
+
+### 1. Prerequisites
+- Node.js (v18+)
+- PostgreSQL (v14+)
+- npm or yarn
+
+### 2. Database Setup
+1. Create a new database named `traveloop`:
+   ```sql
+   CREATE DATABASE traveloop;
+   ```
+2. Run the schema script to set up tables and seed initial data:
+   ```bash
+   psql -d traveloop -f schema.sql
+   ```
+
+### 3. Backend Configuration
+1. Navigate to the root directory.
+2. Create a `.env` file:
+   ```env
+   DB_USER=your_username
+   DB_PASS=your_password
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_NAME=traveloop
+   JWT_SECRET=your_super_secret_key
+   ```
+3. Install dependencies and start:
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+### 4. Frontend Configuration
+1. Navigate to the `frontend` directory.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+4. Access the app at `http://localhost:3001` (or your local port).
+
+---
+
+## 📂 Project Structure
+
 ```bash
-npm install
-```
-
-### 2. Configure environment
-```bash
-cp .env.example .env
-# Edit .env with your PostgreSQL credentials and a JWT secret
-```
-
-### 3. Create database
-```sql
--- In psql:
-CREATE DATABASE traveloop;
-```
-
-### 4. Run migration
-```bash
-npm run migrate
-```
-
-### 5. Start server
-```bash
-npm run dev     # with nodemon (install: npm i -g nodemon)
-npm start       # production
+traveloop/
+├── frontend/             # Next.js 15 Client
+│   ├── app/              # App Router (App, Auth, Trips, etc.)
+│   ├── components/       # Reusable UI Components
+│   └── lib/              # API Client & Utilities
+├── routes/               # Express API Routes
+├── middleware/           # Auth & Logic Middleware
+├── utils/                # Backend Helpers
+├── db.js                 # Database Connection
+├── schema.sql            # PostgreSQL Schema
+└── server.js             # API Entry Point
 ```
 
 ---
 
-## API Reference
+## 🛡️ API Endpoints Summary
 
-### Auth (Screens 1 & 2)
-
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/auth/register` | Register new user | ❌ |
-| POST | `/api/auth/login` | Login, returns JWT | ❌ |
-| POST | `/api/auth/refresh-token` | Rotate access token | ❌ |
-| POST | `/api/auth/logout` | Invalidate refresh token | ✅ |
-| GET  | `/api/auth/me` | Get current user | ✅ |
-
-**Register body:**
-```json
-{
-  "email": "user@example.com",
-  "password": "secret123",
-  "first_name": "Arjun",
-  "last_name": "Patel",
-  "phone": "+919876543210",
-  "city": "Vadodara",
-  "country": "India",
-  "bio": "Travel enthusiast"
-}
-```
-
-**Login body:**
-```json
-{ "email": "user@example.com", "password": "secret123" }
-```
-
-**Login response:**
-```json
-{
-  "success": true,
-  "data": {
-    "user": { "id": "uuid", "email": "...", "first_name": "..." },
-    "accessToken": "eyJ...",
-    "refreshToken": "eyJ..."
-  }
-}
-```
-
-> All protected routes need: `Authorization: Bearer <accessToken>`
+| Category | Endpoint | Description |
+|----------|----------|-------------|
+| **Auth** | `POST /api/auth/login` | Authenticate & get JWT |
+| **Trips**| `GET /api/trips` | Fetch all user trips |
+| **Notes**| `GET /api/notes/:tripId` | Get notes for a trip |
+| **Search**| `GET /api/search/activities`| Search global activities |
+| **Checklist**| `GET /api/checklist/:tripId`| Get trip preparation items |
 
 ---
 
-### Users (Screen 2)
-
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/api/users/profile` | Get profile | ✅ |
-| PUT | `/api/users/profile` | Update profile | ✅ |
-| POST | `/api/users/photo` | Upload profile photo (multipart/form-data, field: `photo`) | ✅ |
+## 🤝 Contributing
+This project was built as part of a high-intensity hackathon. Contributions, issues, and feature requests are welcome!
 
 ---
 
-### Places (Screens 3 & 4)
-
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/api/places/featured` | Top regional selections | ✅ |
-| GET | `/api/places?search=paris&country=France` | Search places | ✅ |
-| GET | `/api/places/:id` | Place detail + activity suggestions | ✅ |
+## 📄 License
+This project is licensed under the MIT License.
 
 ---
-
-### Trips (Screens 3 & 4)
-
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/api/trips` | List user's trips | ✅ |
-| GET | `/api/trips?status=upcoming` | Filter by status | ✅ |
-| GET | `/api/trips?search=Paris` | Search trips | ✅ |
-| POST | `/api/trips` | Create new trip | ✅ |
-| GET | `/api/trips/:id` | Trip + its sections | ✅ |
-| PUT | `/api/trips/:id` | Update trip | ✅ |
-| DELETE | `/api/trips/:id` | Delete trip | ✅ |
-
-**Create Trip body:**
-```json
-{
-  "title": "Europe Adventure",
-  "destination": "Paris, France",
-  "start_date": "2025-06-01",
-  "end_date": "2025-06-15",
-  "total_budget": 80000,
-  "notes": "First trip to Europe!"
-}
-```
-
----
-
-### Itinerary Sections (Screen 5)
-
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/api/trips/:tripId/sections` | All sections for a trip | ✅ |
-| POST | `/api/trips/:tripId/sections` | Add a section | ✅ |
-| PUT | `/api/trips/:tripId/sections/:sectionId` | Update section | ✅ |
-| PATCH | `/api/trips/:tripId/sections/reorder` | Reorder sections | ✅ |
-| DELETE | `/api/trips/:tripId/sections/:sectionId` | Delete section | ✅ |
-
-**Add Section body:**
-```json
-{
-  "title": "Flight: Delhi → Paris",
-  "description": "Air India AI-111, economy class",
-  "start_date": "2025-06-01",
-  "end_date": "2025-06-01",
-  "budget": 12000,
-  "type": "travel"
-}
-```
-
-**Section types:** `travel` | `hotel` | `activity` | `food` | `general`
-
----
-
-## Database Tables
-
-| Table | Purpose |
-|-------|---------|
-| `users` | Screen 1 & 2 — auth + profile |
-| `refresh_tokens` | JWT token rotation |
-| `places` | Screen 3 & 4 — destinations |
-| `trips` | Screen 3 & 4 — user trips |
-| `itinerary_sections` | Screen 5 — trip plan sections |
-| `place_suggestions` | Screen 4 — activity suggestions per place |
-
----
-
-## Frontend Integration
-
-```javascript
-// axios instance (create once in api.js)
-const api = axios.create({ baseURL: 'http://localhost:5000/api' });
-
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('accessToken');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-// Login
-const { data } = await api.post('/auth/login', { email, password });
-localStorage.setItem('accessToken', data.data.accessToken);
-
-// Fetch featured places (Screen 3)
-const { data } = await api.get('/places/featured');
-
-// Create trip (Screen 4)
-const { data } = await api.post('/trips', tripPayload);
-
-// Add itinerary section (Screen 5)
-const { data } = await api.post(`/trips/${tripId}/sections`, sectionPayload);
-```
+*Created with ❤️ by the Traveloop Team*
