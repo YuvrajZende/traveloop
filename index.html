@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Traveloop · Design System & Screens</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; height: 100%; font-family: 'DM Sans', system-ui, sans-serif; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="components.jsx"></script>
+<script type="text/babel" src="screen-design-system.jsx"></script>
+<script type="text/babel" src="screens-auth.jsx"></script>
+<script type="text/babel" src="screens-main.jsx"></script>
+<script type="text/babel" src="screens-trips.jsx"></script>
+<script type="text/babel" src="screens-trip-detail.jsx"></script>
+<script type="text/babel" src="screens-admin.jsx"></script>
+
+<script type="text/babel" data-presets="react">
+  // Standard desktop artboard size
+  const W = 1440;
+  const TALL = 1500;
+  const XTALL = 1900;
+  const STD = 1100;
+
+  function App() {
+    return (
+      <DesignCanvas>
+        <DCSection id="system" title="Design System" subtitle="Tokens, type, components — the source of truth.">
+          <DCArtboard id="ds" label="System · Showcase" width={1280} height={2200}>
+            <ScreenDesignSystem />
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="auth" title="Authentication" subtitle="Screens 1–2 · centered card, no navbar.">
+          <DCArtboard id="login"    label="01 · Login"    width={W} height={STD}><ScreenLogin /></DCArtboard>
+          <DCArtboard id="register" label="02 · Register" width={W} height={STD}><ScreenRegister /></DCArtboard>
+        </DCSection>
+
+        <DCSection id="planning" title="Discovery & Planning" subtitle="Screens 3–5 · dashboard, new trip, itinerary builder.">
+          <DCArtboard id="dashboard" label="03 · Dashboard"          width={W} height={TALL}><ScreenDashboard /></DCArtboard>
+          <DCArtboard id="newtrip"   label="04 · Plan a new trip"    width={W} height={XTALL}><ScreenNewTrip /></DCArtboard>
+          <DCArtboard id="builder"   label="05 · Itinerary builder"  width={W} height={TALL}><ScreenItineraryBuilder /></DCArtboard>
+        </DCSection>
+
+        <DCSection id="my-trips" title="My Trips & Profile" subtitle="Screens 6–8 · listing, profile, search.">
+          <DCArtboard id="listing"  label="06 · Trip listing"  width={W} height={TALL}><ScreenTripListing /></DCArtboard>
+          <DCArtboard id="profile"  label="07 · User profile"  width={W} height={XTALL}><ScreenProfile /></DCArtboard>
+          <DCArtboard id="search"   label="08 · Activity search" width={W} height={XTALL}><ScreenSearch /></DCArtboard>
+        </DCSection>
+
+        <DCSection id="trip-detail" title="Trip Detail" subtitle="Screens 9–11 · itinerary view, community, packing.">
+          <DCArtboard id="iview"     label="09 · Itinerary view"  width={W} height={XTALL}><ScreenItineraryView /></DCArtboard>
+          <DCArtboard id="community" label="10 · Community"       width={W} height={TALL}><ScreenCommunity /></DCArtboard>
+          <DCArtboard id="checklist" label="11 · Packing checklist" width={W} height={TALL}><ScreenChecklist /></DCArtboard>
+        </DCSection>
+
+        <DCSection id="admin" title="Admin, Notes & Billing" subtitle="Screens 12–14 · admin, journal, invoice.">
+          <DCArtboard id="admin"   label="12 · Admin panel"  width={W} height={TALL}><ScreenAdmin /></DCArtboard>
+          <DCArtboard id="notes"   label="13 · Trip notes"   width={W} height={STD+200}><ScreenNotes /></DCArtboard>
+          <DCArtboard id="invoice" label="14 · Expense invoice" width={W} height={TALL}><ScreenInvoice /></DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
