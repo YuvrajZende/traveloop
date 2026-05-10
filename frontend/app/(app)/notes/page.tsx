@@ -236,17 +236,26 @@ export default function NotesPage() {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <div className="text-sm text-muted-foreground border border-border rounded-lg px-4 py-2 bg-muted/20">No trips available</div>
+          <div className="flex-1 text-center border border-dashed border-border rounded-xl py-8 px-4 bg-muted/10">
+            <p className="text-sm font-medium text-muted-foreground mb-2">No trips found</p>
+            <p className="text-xs text-muted-foreground mb-4">Create a trip first, then come back to add notes.</p>
+            <a href="/trips/new" className={cn(buttonVariants({ size: 'sm' }), 'bg-primary text-primary-foreground h-9 gap-1.5')}>
+              <Plus className="w-3.5 h-3.5" />
+              Plan a Trip
+            </a>
+          </div>
         )}
 
-        <button
-          onClick={() => setShowAdd(!showAdd)}
-          disabled={!tripId}
-          className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'border-border text-sm gap-1.5 h-10 bg-background')}
-        >
-          <Plus className="w-4 h-4" />
-          Add Note
-        </button>
+        {trips.length > 0 && (
+          <button
+            onClick={() => setShowAdd(!showAdd)}
+            disabled={!tripId}
+            className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'border-border text-sm gap-1.5 h-10 bg-background')}
+          >
+            <Plus className="w-4 h-4" />
+            Add Note
+          </button>
+        )}
       </div>
 
       {/* Add note form */}

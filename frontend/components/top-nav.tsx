@@ -19,6 +19,7 @@ const NAV_LINKS = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/trips', label: 'My Trips' },
   { href: '/trips/new', label: 'Plan a Trip' },
+  { href: '/search', label: 'Explore' },
   { href: '/checklist', label: 'Packing Checklist' },
   { href: '/notes', label: 'Trip Notes' },
   { href: '/community', label: 'Community' },
@@ -93,7 +94,11 @@ const router = useRouter()
             <DropdownMenuSeparator />
             <DropdownMenuItem
               variant="destructive"
-              onClick={() => router.push('/login')}
+              onClick={() => {
+                localStorage.removeItem('traveloop_token')
+                localStorage.removeItem('traveloop_user')
+                router.push('/login')
+              }}
             >
               Log out
             </DropdownMenuItem>

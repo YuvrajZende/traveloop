@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Camera } from 'lucide-react'
+import { Camera, Eye, EyeOff } from 'lucide-react'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -17,8 +17,11 @@ export default function RegisterPage() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', phone: '',
+    username: '', firstName: '', lastName: '', email: '', phone: '',
+    password: '', confirmPassword: '',
     city: '', country: '', info: '',
   })
 
@@ -34,21 +37,34 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-    if (!form.email || !form.firstName || !form.lastName) {
-      setError('Please fill in required fields (First Name, Last Name, Email).')
+
+    if (!form.username || !form.email || !form.firstName || !form.lastName || !form.password) {
+      setError('Please fill in all required fields.')
+      return
+    }
+
+    if (form.username.length < 3) {
+      setError('Username must be at least 3 characters.')
+      return
+    }
+
+    if (form.password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
+
+    if (form.password !== form.confirmPassword) {
+      setError('Passwords do not match.')
       return
     }
 
     setIsLoading(true)
     try {
       const { authApi } = await import('@/lib/api')
-      
-      const generatedUsername = form.email.split('@')[0] + Math.floor(Math.random() * 1000)
-      const defaultPassword = 'Traveloop@123'
 
       await authApi.register({
-        username: generatedUsername,
-        password: defaultPassword,
+        username: form.username,
+        password: form.password,
         email: form.email,
         first_name: form.firstName,
         last_name: form.lastName,
@@ -57,8 +73,6 @@ export default function RegisterPage() {
         country: form.country,
         additional_info: form.info
       })
-      
-      alert(`Registered successfully!\n\nFor the demo, your generated credentials are:\nUsername/Email: ${form.email}\nPassword: ${defaultPassword}`)
       
       router.push('/dashboard')
     } catch (err: any) {
@@ -139,25 +153,53 @@ export default function RegisterPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Username */}
+              <div className="space-y-1.5">
+                <Label htmlFor="username" className="text-xs font-medium">Username <span className="text-destructive">*</span></Label>
+                <Input id="username" placeholder="Choose a username" value={form.username} onChange={e => set('username', e.target.value)} className="h-11 bg-background" autoComplete="username" />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="firstName" className="text-xs font-medium">First Name</Label>
+                  <Label htmlFor="firstName" className="text-xs font-medium">First Name <span className="text-destructive">*</span></Label>
                   <Input id="firstName" placeholder="First Name" value={form.firstName} onChange={e => set('firstName', e.target.value)} className="h-11 bg-background" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="lastName" className="text-xs font-medium">Last Name</Label>
+                  <Label htmlFor="lastName" className="text-xs font-medium">Last Name <span className="text-destructive">*</span></Label>
                   <Input id="lastName" placeholder="Last Name" value={form.lastName} onChange={e => set('lastName', e.target.value)} className="h-11 bg-background" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-xs font-medium">Email Address</Label>
-                  <Input id="email" type="email" placeholder="Email Address" value={form.email} onChange={e => set('email', e.target.value)} className="h-11 bg-background" />
+                  <Label htmlFor="email" className="text-xs font-medium">Email Address <span className="text-destructive">*</span></Label>
+                  <Input id="email" type="email" placeholder="you@email.com" value={form.email} onChange={e => set('email', e.target.value)} className="h-11 bg-background" autoComplete="email" />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="phone" className="text-xs font-medium">Phone Number</Label>
-                  <Input id="phone" type="tel" placeholder="Phone Number" value={form.phone} onChange={e => set('phone', e.target.value)} className="h-11 bg-background" />
+                  <Input id="phone" type="tel" placeholder="+91 98765 43210" value={form.phone} onChange={e => set('phone', e.target.value)} className="h-11 bg-background" />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="password" className="text-xs font-medium">Password <span className="text-destructive">*</span></Label>
+                  <div className="relative">
+                    <Input id="password" type={showPassword ? 'text' : 'password'} placeholder="Min 8 characters" value={form.password} onChange={e => set('password', e.target.value)} className="h-11 bg-background pr-10" autoComplete="new-password" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="confirmPassword" className="text-xs font-medium">Confirm Password <span className="text-destructive">*</span></Label>
+                  <div className="relative">
+                    <Input id="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} placeholder="Re-enter password" value={form.confirmPassword} onChange={e => set('confirmPassword', e.target.value)} className="h-11 bg-background pr-10" autoComplete="new-password" />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -173,13 +215,13 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="info" className="text-xs font-medium">Additional Information ....</Label>
+                <Label htmlFor="info" className="text-xs font-medium">Bio / Additional Info</Label>
                 <Textarea
                   id="info"
-                  placeholder="Additional Information ...."
+                  placeholder="Tell us about yourself..."
                   value={form.info}
                   onChange={e => set('info', e.target.value)}
-                  rows={4}
+                  rows={3}
                   className="resize-none bg-background text-sm"
                 />
               </div>
@@ -191,7 +233,7 @@ export default function RegisterPage() {
                 disabled={isLoading}
                 className={cn(buttonVariants(), 'w-full h-11 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold mt-2 btn-primary-glow transition-all disabled:opacity-50')}
               >
-                {isLoading ? 'Processing...' : 'Register Users'}
+                {isLoading ? 'Creating account...' : 'Create Account'}
               </button>
             </form>
 
@@ -207,7 +249,7 @@ export default function RegisterPage() {
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{' '}
               <Link href="/login" className="text-primary font-semibold hover:underline">
-                Existing Users
+                Sign in
               </Link>
             </p>
           </div>

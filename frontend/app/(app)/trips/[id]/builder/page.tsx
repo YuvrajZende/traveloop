@@ -117,6 +117,16 @@ export default function BuilderPage() {
           await apiClient(`/itinerary/sections/${sec.id}`, { method: 'PUT', body: JSON.stringify(payload) })
         }
       }))
+
+      // Update trip total_budget with sum of section budgets
+      const totalBudget = sections.reduce((sum, s) => sum + (parseFloat(s.budget) || 0), 0)
+      if (totalBudget > 0) {
+        await apiClient(`/trips/${tripId}`, {
+          method: 'PUT',
+          body: JSON.stringify({ total_budget: totalBudget })
+        })
+      }
+
       router.push(`/trips/${tripId}/checklist`)
     } catch (err) {
       console.error('Failed to save sections:', err)

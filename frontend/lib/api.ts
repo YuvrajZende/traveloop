@@ -49,7 +49,7 @@ export async function apiClient(endpoint: string, options: RequestInit = {}) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || 'An error occurred');
+    throw new Error(data.message || data.error || 'An error occurred');
   }
 
   return data;

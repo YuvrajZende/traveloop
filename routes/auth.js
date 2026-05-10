@@ -62,7 +62,7 @@ router.post('/login',
       const { username, password } = req.body;
 
       const { rows } = await db.query(
-        'SELECT * FROM users WHERE username = $1',
+        'SELECT * FROM users WHERE username = $1 OR email = $1',
         [username]
       );
       if (rows.length === 0) {

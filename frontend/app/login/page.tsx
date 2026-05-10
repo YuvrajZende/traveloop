@@ -7,16 +7,15 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { User } from 'lucide-react'
+import { User, Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [name, setName] = useState('')
   const [error, setError] = useState('')
-
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -104,10 +103,11 @@ export default function LoginPage() {
                 <Label htmlFor="username" className="text-xs font-medium">Username or Email</Label>
                 <Input
                   id="username"
-                  placeholder="your@email.com"
+                  placeholder="username or you@email.com"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   className="h-10 bg-background"
+                  autoComplete="username"
                 />
               </div>
               <div className="space-y-1.5">
@@ -115,14 +115,24 @@ export default function LoginPage() {
                   <Label htmlFor="password" className="text-xs font-medium">Password</Label>
                   <span className="text-xs text-primary cursor-pointer hover:underline font-medium">Forgot password?</span>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="h-10 bg-background"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    className="h-10 bg-background pr-10"
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               {error && <p className="text-sm text-destructive">{error}</p>}
@@ -135,7 +145,7 @@ export default function LoginPage() {
                   'w-full h-10 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold mt-1 btn-primary-glow transition-all disabled:opacity-50'
                 )}
               >
-                {isLoading ? 'Processing...' : 'Sign in'}
+                {isLoading ? 'Signing in...' : 'Sign in'}
               </button>
             </form>
 

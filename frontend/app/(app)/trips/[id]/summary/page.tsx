@@ -60,11 +60,15 @@ export default function TripSummaryPage() {
 
   const totalActivities = sectionsData.reduce((sum: number, s: any) => sum + (s.activities?.length || 0), 0)
 
+  // Calculate budget: use trip total_budget if set, otherwise sum section budgets
+  const sectionBudgetSum = sectionsData.reduce((sum: number, s: any) => sum + (parseFloat(s.budget) || 0), 0)
+  const displayBudget = (trip.total_budget && trip.total_budget > 0) ? trip.total_budget : sectionBudgetSum
+
   const stats = [
     { icon: Calendar,    label: 'Total Days',    value: `${totalDays} days` },
     { icon: MapPin,      label: 'Destinations',  value: trip.place ? '1 destination' : '0 destinations' },
     { icon: FileText,    label: 'Itinerary',     value: `${sectionsCount} sections planned` },
-    { icon: DollarSign,  label: 'Budget',        value: `$${(trip.total_budget || 0).toLocaleString()}` },
+    { icon: DollarSign,  label: 'Budget',        value: displayBudget > 0 ? `$${displayBudget.toLocaleString()}` : 'Not set' },
     { icon: Package,     label: 'Packed',        value: `${packInfo.packed}/${packInfo.total} items` },
     { icon: CheckCircle2,label: 'Activities',    value: `${totalActivities} planned` },
   ]
