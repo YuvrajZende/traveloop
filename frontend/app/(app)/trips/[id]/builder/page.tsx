@@ -10,6 +10,7 @@ import { TripFlowSteps } from '@/components/trip-flow-steps'
 import { cn } from '@/lib/utils'
 import { Plus, Trash2, ArrowRight } from 'lucide-react'
 import { apiClient } from '@/lib/api'
+import { BackButton } from '@/components/back-button'
 
 interface Section {
   id: string
@@ -133,6 +134,7 @@ export default function BuilderPage() {
   return (
     <div className="p-6 md:p-8 space-y-4 max-w-3xl mx-auto">
       {isLoading ? <div className="text-center p-8 text-muted-foreground">Loading sections...</div> : <>
+      <BackButton href={`/trips/${tripId}/view`} />
       <TripFlowSteps current={1} />
 
       <div className="flex items-center justify-between">

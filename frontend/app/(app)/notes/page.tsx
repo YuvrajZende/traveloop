@@ -10,6 +10,7 @@ import {
 import { Search, ChevronDown, Pencil, Trash2, Plus, Check, X, Save } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { apiClient } from '@/lib/api'
+import { BackButton } from '@/components/back-button'
 
 interface Note {
   id: string
@@ -201,6 +202,7 @@ export default function NotesPage() {
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-3xl mx-auto pb-16">
+      <BackButton href="/dashboard" />
       {/* Controls */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1">

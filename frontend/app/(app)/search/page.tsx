@@ -9,6 +9,7 @@ import {
 import { Search, MapPin, Clock, DollarSign, Globe, Star, Check, Compass, Mountain, Utensils, ShoppingBag, Camera, Palette, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { apiClient } from '@/lib/api'
+import { BackButton } from '@/components/back-button'
 
 /* ── Types ─────────────────────────── */
 interface Activity {
@@ -185,11 +186,12 @@ export default function SearchPage() {
   }
 
   function CityCard({ city }: { city: City }) {
+    const initials = city.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()
     return (
       <div className="border border-border rounded-xl bg-card hover:shadow-md transition-all duration-200 cursor-pointer shadow-sm group">
         <div className="px-5 py-4 flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-            <Globe className="w-5 h-5 text-primary" />
+            <span className="text-sm font-bold text-primary">{initials}</span>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold">{city.name}</p>
@@ -249,6 +251,7 @@ export default function SearchPage() {
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-3xl mx-auto pb-16">
+      <BackButton href="/dashboard" />
       {/* Search bar */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1">

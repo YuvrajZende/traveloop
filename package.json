@@ -2,11 +2,11 @@
   "name": "traveloop-backend",
   "version": "1.0.0",
   "description": "Traveloop — collaborative trip planning platform backend",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "db:init": "psql -d traveloop_db -f schema.sql",
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "db:init": "psql -d traveloop_db -f src/schema.sql",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

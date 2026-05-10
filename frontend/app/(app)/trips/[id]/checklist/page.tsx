@@ -10,6 +10,7 @@ import { TripFlowSteps } from '@/components/trip-flow-steps'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { apiClient } from '@/lib/api'
+import { BackButton } from '@/components/back-button'
 
 interface ChecklistItem { id: string; label: string; checked: boolean }
 interface Category { id: string; name: string; items: ChecklistItem[] }
@@ -126,6 +127,7 @@ export default function TripChecklistPage() {
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-3xl mx-auto">
       {isLoading ? <div className="text-center p-8 text-muted-foreground">Loading checklist...</div> : <>
+      <BackButton href={`/trips/${tripId}/builder`} />
       <TripFlowSteps current={2} />
 
       <div className="flex items-center justify-between">

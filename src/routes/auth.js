@@ -1,123 +1,143 @@
-const express = require('express');
+const router = require('express').Router();
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { body } = require('express-validator');
-const { query } = require('../config/db');
-const { validate } = require('../middleware/errorHandler');
-const { authenticate } = require('../middleware/auth');
+const db = require('../db');
+const { generateToken, authenticateToken } = require('../jwt');
+const AppError = require('../utils/AppError');
+const { requireFields } = require('../utils/helpers');
 
-const router = express.Router();
-
-// ── Helpers ────────────────────────────────────────────────
-const generateTokens = (userId) => {
-  const accessToken = jwt.sign(
-    { userId },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-  );
-  const refreshToken = jwt.sign(
-    { userId, type: 'refresh' },
-    process.env.JWT_SECRET,
-    { expiresIn: '30d' }
-  );
-  return { accessToken, refreshToken };
-};
-
-const saveRefreshToken = async (userId, token) => {
-  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-  await query(
-    'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
-    [userId, token, expiresAt]
-  );
-};
-
-// ── POST /api/auth/register  (Screen 2) ───────────────────
-router.post(
-  '/register',
-  [
-    body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-    body('first_name').trim().notEmpty().withMessage('First name is required'),
-    body('last_name').trim().notEmpty().withMessage('Last name is required'),
-    body('phone').optional().isMobilePhone().withMessage('Invalid phone number'),
-  ],
-  validate,
+// ── POST /api/auth/register  (Screen 2) ───────────────
+router.post('/register',
+  requireFields('username', 'email', 'password', 'first_name', 'last_name'),
   async (req, res, next) => {
     try {
-      const { email, password, first_name, last_name, phone, city, country, bio } = req.body;
+      const {
+        username, email, password,
+        first_name, last_name,
+        phone_number, city, country,
+        additional_info,
+      } = req.body;
 
-      // Check if email already exists
-      const existing = await query('SELECT id FROM users WHERE email = $1', [email]);
+      // Password strength check
+      if (password.length < 8) {
+        throw AppError.badRequest('Password must be at least 8 characters');
+      }
+
+      // Check uniqueness
+      const existing = await db.query(
+        'SELECT id FROM users WHERE email = $1 OR username = $2',
+        [email, username]
+      );
       if (existing.rows.length > 0) {
-        return res.status(409).json({ success: false, message: 'Email already registered' });
+        throw AppError.conflict('Username or email already taken');
       }
 
       const password_hash = await bcrypt.hash(password, 12);
 
-      const result = await query(
-        `INSERT INTO users (email, password_hash, first_name, last_name, phone, city, country, bio)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         RETURNING id, email, first_name, last_name, phone, city, country, photo_url, created_at`,
-        [email, password_hash, first_name, last_name, phone || null, city || null, country || null, bio || null]
+      const { rows } = await db.query(
+        `INSERT INTO users
+          (username, email, password_hash, first_name, last_name,
+           phone_number, city, country, additional_info)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+         RETURNING id, username, email, first_name, last_name, role`,
+        [username, email, password_hash, first_name, last_name,
+         phone_number, city, country, additional_info]
       );
 
-      const user = result.rows[0];
-      const { accessToken, refreshToken } = generateTokens(user.id);
-      await saveRefreshToken(user.id, refreshToken);
+      const user = rows[0];
+      const token = generateToken({ id: user.id, username: user.username, role: user.role });
 
-      res.status(201).json({
-        success: true,
-        message: 'Registration successful',
-        data: { user, accessToken, refreshToken },
-      });
+      res.status(201).json({ user, token });
     } catch (err) {
       next(err);
     }
   }
 );
 
-// ── POST /api/auth/login  (Screen 1) ─────────────────────
-router.post(
-  '/login',
-  [
-    body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
-    body('password').notEmpty().withMessage('Password is required'),
-  ],
-  validate,
+// ── POST /api/auth/login  (Screen 1) ──────────────────
+router.post('/login',
+  requireFields('username', 'password'),
   async (req, res, next) => {
     try {
-      const { email, password } = req.body;
+      const { username, password } = req.body;
 
-      const result = await query(
-        `SELECT id, email, password_hash, first_name, last_name, photo_url, is_active
-         FROM users WHERE email = $1`,
+      const { rows } = await db.query(
+        'SELECT * FROM users WHERE username = $1 OR email = $1',
+        [username]
+      );
+      if (rows.length === 0) {
+        throw AppError.unauthorized('Invalid credentials');
+      }
+
+      const user = rows[0];
+      const valid = await bcrypt.compare(password, user.password_hash);
+      if (!valid) {
+        throw AppError.unauthorized('Invalid credentials');
+      }
+
+      // Block disabled accounts
+      if (user.role === 'disabled') {
+        throw AppError.forbidden('Account has been disabled. Contact support.');
+      }
+
+      const token = generateToken({ id: user.id, username: user.username, role: user.role });
+      delete user.password_hash;
+
+      res.json({ user, token });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// ── POST /api/auth/forgot-password ────────────────────
+// Generates a reset token (valid for 1 hour).
+// In production, you would email this link — for the hackathon
+// we return the token directly in the response.
+router.post('/forgot-password',
+  requireFields('email'),
+  async (req, res, next) => {
+    try {
+      const { email } = req.body;
+
+      const { rows } = await db.query(
+        'SELECT id, email FROM users WHERE email = $1',
         [email]
       );
 
-      if (result.rows.length === 0) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      // Always return 200 to prevent email enumeration
+      if (rows.length === 0) {
+        return res.json({
+          message: 'If an account with that email exists, a reset link has been sent.',
+        });
       }
 
-      const user = result.rows[0];
+      const user = rows[0];
 
-      if (!user.is_active) {
-        return res.status(403).json({ success: false, message: 'Account deactivated' });
-      }
+      // Invalidate any existing unused tokens for this user
+      await db.query(
+        `UPDATE password_reset_tokens SET used = true
+         WHERE user_id = $1 AND used = false`,
+        [user.id]
+      );
 
-      const passwordMatch = await bcrypt.compare(password, user.password_hash);
-      if (!passwordMatch) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password' });
-      }
+      // Generate a secure random token
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-      const { accessToken, refreshToken } = generateTokens(user.id);
-      await saveRefreshToken(user.id, refreshToken);
+      await db.query(
+        `INSERT INTO password_reset_tokens (user_id, token, expires_at)
+         VALUES ($1, $2, $3)`,
+        [user.id, resetToken, expiresAt]
+      );
 
-      const { password_hash, ...safeUser } = user;
-
+      // In production: send email with link containing resetToken
+      // For hackathon, return the token directly
       res.json({
-        success: true,
-        message: 'Login successful',
-        data: { user: safeUser, accessToken, refreshToken },
+        message: 'If an account with that email exists, a reset link has been sent.',
+        // Remove this in production — only here for hackathon testing
+        reset_token: resetToken,
+        expires_at: expiresAt,
       });
     } catch (err) {
       next(err);
@@ -125,57 +145,97 @@ router.post(
   }
 );
 
-// ── POST /api/auth/refresh-token ──────────────────────────
-router.post('/refresh-token', async (req, res, next) => {
-  try {
-    const { refreshToken } = req.body;
-    if (!refreshToken) {
-      return res.status(400).json({ success: false, message: 'Refresh token required' });
-    }
+// ── POST /api/auth/reset-password ─────────────────────
+// Validates the reset token and sets a new password.
+router.post('/reset-password',
+  requireFields('token', 'new_password'),
+  async (req, res, next) => {
+    try {
+      const { token, new_password } = req.body;
 
-    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
-    if (decoded.type !== 'refresh') {
-      return res.status(401).json({ success: false, message: 'Invalid refresh token' });
-    }
+      if (new_password.length < 8) {
+        throw AppError.badRequest('Password must be at least 8 characters');
+      }
 
-    const stored = await query(
-      'SELECT * FROM refresh_tokens WHERE token = $1 AND expires_at > NOW()',
-      [refreshToken]
-    );
-    if (stored.rows.length === 0) {
-      return res.status(401).json({ success: false, message: 'Refresh token expired or invalid' });
-    }
+      // Find valid, unexpired, unused token
+      const { rows } = await db.query(
+        `SELECT rt.id, rt.user_id
+         FROM password_reset_tokens rt
+         WHERE rt.token = $1
+           AND rt.used = false
+           AND rt.expires_at > NOW()`,
+        [token]
+      );
 
-    // Rotate token
-    await query('DELETE FROM refresh_tokens WHERE token = $1', [refreshToken]);
-    const { accessToken, refreshToken: newRefresh } = generateTokens(decoded.userId);
-    await saveRefreshToken(decoded.userId, newRefresh);
+      if (rows.length === 0) {
+        throw AppError.badRequest('Invalid or expired reset token');
+      }
 
-    res.json({ success: true, data: { accessToken, refreshToken: newRefresh } });
-  } catch (err) {
-    if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
-      return res.status(401).json({ success: false, message: 'Invalid or expired refresh token' });
+      const resetRecord = rows[0];
+
+      // Hash new password and update user, mark token as used — in a transaction
+      await db.transaction(async (client) => {
+        const password_hash = await bcrypt.hash(new_password, 12);
+
+        await client.query(
+          `UPDATE users SET password_hash = $1, updated_at = NOW()
+           WHERE id = $2`,
+          [password_hash, resetRecord.user_id]
+        );
+
+        await client.query(
+          `UPDATE password_reset_tokens SET used = true
+           WHERE id = $1`,
+          [resetRecord.id]
+        );
+      });
+
+      res.json({ message: 'Password has been reset successfully. You can now log in.' });
+    } catch (err) {
+      next(err);
     }
-    next(err);
   }
-});
+);
 
-// ── POST /api/auth/logout ─────────────────────────────────
-router.post('/logout', authenticate, async (req, res, next) => {
-  try {
-    const { refreshToken } = req.body;
-    if (refreshToken) {
-      await query('DELETE FROM refresh_tokens WHERE token = $1', [refreshToken]);
+// ── POST /api/auth/change-password ────────────────────
+// For logged-in users to change their password.
+router.post('/change-password',
+  authenticateToken,
+  requireFields('current_password', 'new_password'),
+  async (req, res, next) => {
+    try {
+      const { current_password, new_password } = req.body;
+
+      if (new_password.length < 8) {
+        throw AppError.badRequest('New password must be at least 8 characters');
+      }
+
+      // Fetch current hash
+      const { rows } = await db.query(
+        'SELECT password_hash FROM users WHERE id = $1',
+        [req.user.id]
+      );
+
+      if (rows.length === 0) throw AppError.notFound('User not found');
+
+      const valid = await bcrypt.compare(current_password, rows[0].password_hash);
+      if (!valid) {
+        throw AppError.unauthorized('Current password is incorrect');
+      }
+
+      const password_hash = await bcrypt.hash(new_password, 12);
+
+      await db.query(
+        `UPDATE users SET password_hash = $1, updated_at = NOW()
+         WHERE id = $2`,
+        [password_hash, req.user.id]
+      );
+
+      res.json({ message: 'Password changed successfully' });
+    } catch (err) {
+      next(err);
     }
-    res.json({ success: true, message: 'Logged out successfully' });
-  } catch (err) {
-    next(err);
   }
-});
-
-// ── GET /api/auth/me ──────────────────────────────────────
-router.get('/me', authenticate, async (req, res) => {
-  res.json({ success: true, data: { user: req.user } });
-});
+);
 
 module.exports = router;

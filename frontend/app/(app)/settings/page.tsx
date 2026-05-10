@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { apiClient } from '@/lib/api'
+import { BackButton } from '@/components/back-button'
 
 export default function SettingsPage() {
   const [firstName, setFirstName] = useState('')
@@ -51,6 +52,7 @@ export default function SettingsPage() {
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-2xl mx-auto">
+      <BackButton href="/dashboard" />
       <h1 className="text-xl font-semibold">Settings</h1>
 
       <div className="border border-border rounded-xl bg-card p-6 space-y-5 shadow-sm">

@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { apiClient } from '@/lib/api'
+import { BackButton } from '@/components/back-button'
 
 export default function ItineraryViewPage() {
   const { id } = useParams<{ id: string }>()
@@ -47,6 +48,7 @@ export default function ItineraryViewPage() {
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-3xl mx-auto">
+      <BackButton href="/trips" />
       {/* Search + filter */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1">

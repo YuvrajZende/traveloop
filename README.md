@@ -1,134 +1,273 @@
-# 🌍 Traveloop — Personalized Travel Planning Platform
+# Traveloop
 
-**Traveloop** is a premium, full-stack travel planning application designed to take you from inspiration to itinerary. Build complex trips, manage budgets, coordinate packing lists, and share your adventures with a global community.
+A full-stack collaborative trip planning platform. Build multi-city itineraries, manage budgets, coordinate packing checklists, and share travel experiences with a community.
 
-![Traveloop Banner](https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&q=80)
+## Features
 
----
+### Trip Planning
+- Create trips with destination, dates, and budget
+- Multi-section itinerary builder with activities and expenses
+- Day-by-day itinerary view with expense tracking
+- Trip summary with aggregated statistics
 
-## 🚀 Features
+### Packing Checklists
+- Category-based packing lists per trip
+- Real-time progress tracking
+- Add, remove, and toggle items with optimistic UI updates
+- Share checklists via clipboard
 
-### 📋 Smart Trip Planning
-- **Interactive Itinerary Builder:** Create multiple sections for travel, stays, and activities.
-- **Live Summary Dashboard:** Real-time calculation of trip duration, budget utilization, and activity counts.
-- **Trip Notes & Journaling:** Keep track of booking IDs, contacts, and memories directly linked to your trips.
+### Search & Discovery
+- Search activities across all trips with filters (type, duration, cost)
+- Browse cities with popularity scores
+- Group and sort results
+- 40+ pre-seeded activities across 8 countries for demo purposes
 
-### 🎒 Organized Preparation
-- **Dynamic Packing Checklist:** Category-aware checklist with live CRUD operations and optimistic UI updates.
-- **Budget Tracking:** Manage estimated costs across your entire itinerary to stay on track.
+### Community
+- Post travel tips, questions, and experiences
+- Like and reply to posts
+- Share trip itineraries to community posts
 
-### 🔍 Explore & Discover
-- **Activity & City Search:** Search across thousands of activities and cities with advanced filtering by type, duration, and cost.
-- **Top Regional Selections:** Curated, high-quality travel inspiration right on your dashboard.
+### User Management
+- Registration and login with JWT authentication
+- Profile editing with avatar upload
+- Account settings and preferences
 
-### 🤝 Community & Social
-- **Community Hub:** Share your trip experiences, ask questions, and interact with other travelers.
-- **Live Identity Integration:** Posts and replies are automatically linked to your authenticated profile.
+### Admin Dashboard
+- User analytics and statistics
+- Popular cities and activities views
+- System-level trip data
 
----
+## Tech Stack
 
-## 🛠️ Tech Stack
+### Frontend
+- Next.js 16 (App Router)
+- TypeScript
+- Tailwind CSS v4
+- shadcn/ui components
+- Lucide React icons
+- Recharts for data visualization
+- date-fns for date formatting
 
-### **Frontend**
-- **Framework:** Next.js 15 (App Router)
-- **Styling:** Tailwind CSS + Shadcn UI
-- **State Management:** React Hooks (useState, useEffect, useCallback)
-- **Icons:** Lucide React
-- **Animations:** Framer Motion
+### Backend
+- Node.js with Express 5
+- PostgreSQL with pg connection pooling
+- JWT authentication with bcrypt password hashing
+- Express rate limiting and Helmet security headers
+- Transactional database operations
 
-### **Backend**
-- **Environment:** Node.js + Express
-- **Database:** PostgreSQL
-- **Authentication:** JWT (JSON Web Tokens) with Secure Storage
-- **Middleware:** RBAC (Role-Based Access Control), Error Handling
+### Infrastructure
+- Docker Compose for PostgreSQL
+- dotenv for environment configuration
 
----
+## Project Structure
 
-## 🚦 Getting Started
-
-### 1. Prerequisites
-- Node.js (v18+)
-- PostgreSQL (v14+)
-- npm or yarn
-
-### 2. Database Setup
-1. Create a new database named `traveloop`:
-   ```sql
-   CREATE DATABASE traveloop;
-   ```
-2. Run the schema script to set up tables and seed initial data:
-   ```bash
-   psql -d traveloop -f schema.sql
-   ```
-
-### 3. Backend Configuration
-1. Navigate to the root directory.
-2. Create a `.env` file:
-   ```env
-   DB_USER=your_username
-   DB_PASS=your_password
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_NAME=traveloop
-   JWT_SECRET=your_super_secret_key
-   ```
-3. Install dependencies and start:
-   ```bash
-   npm install
-   npm run dev
-   ```
-
-### 4. Frontend Configuration
-1. Navigate to the `frontend` directory.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-4. Access the app at `http://localhost:3001` (or your local port).
-
----
-
-## 📂 Project Structure
-
-```bash
+```
 traveloop/
-├── frontend/             # Next.js 15 Client
-│   ├── app/              # App Router (App, Auth, Trips, etc.)
-│   ├── components/       # Reusable UI Components
-│   └── lib/              # API Client & Utilities
-├── routes/               # Express API Routes
-├── middleware/           # Auth & Logic Middleware
-├── utils/                # Backend Helpers
-├── db.js                 # Database Connection
-├── schema.sql            # PostgreSQL Schema
-└── server.js             # API Entry Point
+├── .env.example              # Environment variable template
+├── .gitignore
+├── docker-compose.yml        # PostgreSQL container configuration
+├── package.json              # Backend dependencies and scripts
+├── README.md
+│
+├── frontend/                 # Next.js frontend application
+│   ├── app/                  # App Router pages
+│   │   ├── (app)/            # Authenticated routes
+│   │   │   ├── dashboard/
+│   │   │   ├── trips/
+│   │   │   ├── search/
+│   │   │   ├── notes/
+│   │   │   ├── community/
+│   │   │   ├── profile/
+│   │   │   ├── settings/
+│   │   │   └── checklist/
+│   │   ├── login/
+│   │   └── register/
+│   ├── components/           # Reusable UI components
+│   │   ├── ui/               # shadcn/ui primitives
+│   │   ├── top-nav.tsx
+│   │   ├── side-nav.tsx
+│   │   ├── back-button.tsx
+│   │   └── trip-flow-steps.tsx
+│   ├── lib/
+│   │   ├── api.ts            # API client with auth helpers
+│   │   ├── types.ts
+│   │   ├── utils.ts
+│   │   └── mock-data.ts
+│   └── middleware.ts         # Route protection middleware
+│
+└── src/                      # Express backend
+    ├── server.js             # Application entry point
+    ├── db.js                 # PostgreSQL connection pool
+    ├── jwt.js                # JWT generation and verification
+    ├── schema.sql            # Complete database schema
+    ├── middleware/
+    │   ├── auth.js           # Token authentication middleware
+    │   └── rbac.js           # Role-based access control
+    ├── routes/
+    │   ├── admin.js          # Admin analytics endpoints
+    │   ├── auth.js           # Login, register, password reset
+    │   ├── budget.js         # Trip budget management
+    │   ├── checklist.js      # Packing checklist CRUD
+    │   ├── community.js      # Community posts and likes
+    │   ├── dashboard.js      # Dashboard aggregate data
+    │   ├── invoices.js       # Expense invoice generation
+    │   ├── itinerary.js      # Itinerary sections and days
+    │   ├── notes.js          # Trip notes/journal entries
+    │   ├── regions.js        # Regional suggestions
+    │   ├── search.js         # Activity and city search
+    │   ├── share.js          # Trip sharing endpoints
+    │   ├── trips.js          # Trip CRUD with cover images
+    │   └── users.js          # User profile management
+    └── utils/
+        ├── AppError.js       # Custom error classes
+        └── helpers.js        # Query builder and validation
 ```
 
----
+## Prerequisites
 
-## 🛡️ API Endpoints Summary
+- Node.js 22 or later
+- Docker and Docker Compose
+- npm
 
-| Category | Endpoint | Description |
-|----------|----------|-------------|
-| **Auth** | `POST /api/auth/login` | Authenticate & get JWT |
-| **Trips**| `GET /api/trips` | Fetch all user trips |
-| **Notes**| `GET /api/notes/:tripId` | Get notes for a trip |
-| **Search**| `GET /api/search/activities`| Search global activities |
-| **Checklist**| `GET /api/checklist/:tripId`| Get trip preparation items |
+## Installation
 
----
+### 1. Clone the repository
 
-## 🤝 Contributing
-This project was built as part of a high-intensity hackathon. Contributions, issues, and feature requests are welcome!
+```bash
+git clone <repository-url>
+cd traveloop
+```
 
----
+### 2. Set up environment variables
 
-## 📄 License
-This project is licensed under the MIT License.
+Copy the example environment file and configure it:
 
----
-*Created with ❤️ by the Traveloop Team*
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your settings:
+
+```
+PORT=5000
+NODE_ENV=development
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=traveloop_db
+DB_USER=postgres
+DB_PASSWORD=postgres
+
+JWT_SECRET=your_secret_key_here
+JWT_EXPIRES_IN=7d
+```
+
+### 3. Start the database
+
+```bash
+docker compose up -d
+```
+
+This starts PostgreSQL on port 5432 and automatically runs the schema script to create all tables, indexes, and views.
+
+### 4. Install dependencies and start the backend
+
+```bash
+npm install
+npm run dev
+```
+
+The API server starts on `http://localhost:5000`.
+
+### 5. Install dependencies and start the frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The application is available at `http://localhost:3000`.
+
+## API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Create a new user account |
+| POST | `/api/auth/login` | Authenticate and receive JWT |
+| POST | `/api/auth/forgot-password` | Request password reset token |
+| POST | `/api/auth/reset-password` | Reset password with token |
+| POST | `/api/auth/change-password` | Change password (authenticated) |
+
+### Trips
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/trips` | Create a new trip |
+| GET | `/api/trips` | List all trips for authenticated user |
+| GET | `/api/trips/:id` | Get single trip details |
+| PUT | `/api/trips/:id` | Update trip |
+| DELETE | `/api/trips/:id` | Delete trip |
+
+### Itinerary
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/itinerary/sections/:tripId` | Get itinerary sections |
+| POST | `/api/itinerary/sections` | Create a section |
+| PUT | `/api/itinerary/sections/:id` | Update a section |
+| DELETE | `/api/itinerary/sections/:id` | Delete a section |
+| GET | `/api/itinerary/view/:tripId` | Get full itinerary with days and activities |
+
+### Checklist
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/checklist/:tripId` | Get packing checklist |
+| POST | `/api/checklist/categories` | Create a category |
+| POST | `/api/checklist/items` | Add an item |
+| PATCH | `/api/checklist/items/:id/toggle` | Toggle packed status |
+
+### Search
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/search/activities` | Search activities with filters |
+| GET | `/api/search/cities` | Search cities with filters |
+
+### Community
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/community` | List all community posts |
+| POST | `/api/community` | Create a post |
+| POST | `/api/community/:id/like` | Toggle like on a post |
+
+### Other
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/dashboard` | Dashboard aggregate data |
+| GET | `/api/users/me` | Get current user profile |
+| PUT | `/api/users/me` | Update current user |
+| GET | `/api/notes/:tripId` | Get trip notes |
+| GET | `/api/budget/:tripId` | Get trip budget |
+| GET | `/api/health` | Health check |
+
+## Database Schema
+
+The schema includes 20 tables covering users, trips, itineraries, activities, checklists, regions, community posts, trip notes, invoices, and budget items. Three materialized views provide analytics for popular cities, popular activities, and user statistics.
+
+Run the schema manually if needed:
+
+```bash
+npm run db:init
+```
+
+## Contributors
+
+| Name | Role |
+|------|------|
+| Riya Gaur | Admin Dashboard Development |
+| Nevil Choksi | Frontend UI |
+| Yuvraj Zende | Backend System |
+| Vinay Yadav | Routes, Connections, and Middleware |
+
+## License
+
+MIT

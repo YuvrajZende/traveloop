@@ -9,7 +9,8 @@ import { TripFlowSteps } from '@/components/trip-flow-steps'
 import { format } from 'date-fns'
 import { MapPin, Calendar, DollarSign, Package, CheckCircle2, ArrowRight, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { apiClient } from '@/lib/api'
+import { apiClient, getCoverImage } from '@/lib/api'
+import { BackButton } from '@/components/back-button'
 
 export default function TripSummaryPage() {
   const params = useParams()
@@ -71,6 +72,7 @@ export default function TripSummaryPage() {
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-3xl mx-auto pb-16">
+      <BackButton href={`/trips/${tripId}/checklist`} />
       <TripFlowSteps current={3} />
 
       {/* Hero celebration card */}
@@ -79,7 +81,7 @@ export default function TripSummaryPage() {
           {trip.cover_image_url ? (
             <Image src={trip.cover_image_url} alt={trip.title} fill className="object-cover opacity-30" sizes="800px" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-muted opacity-50" />
+            <Image src={getCoverImage(trip.place)} alt={trip.place || 'Destination'} fill className="object-cover opacity-30" sizes="800px" />
           )}
         </div>
         <div className="relative z-10 px-8 py-10 text-center space-y-3">

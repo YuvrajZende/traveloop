@@ -11,6 +11,7 @@ import { format } from 'date-fns'
 import { useState, useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { apiClient } from '@/lib/api'
+import { BackButton } from '@/components/back-button'
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
@@ -87,6 +88,7 @@ export default function ProfilePage() {
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-5xl mx-auto">
+      <BackButton href="/dashboard" />
       {/* User details card */}
       <div className="border border-border rounded-xl bg-card p-6 flex gap-6 items-start shadow-sm">
         {/* Avatar with upload */}

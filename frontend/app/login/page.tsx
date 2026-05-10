@@ -27,8 +27,13 @@ export default function LoginPage() {
     try {
       const { authApi } = await import('@/lib/api')
       
-      await authApi.login({ username, password })
-      router.push('/dashboard')
+      const data = await authApi.login({ username, password })
+      
+      // Set cookie for middleware auth guard
+      document.cookie = `traveloop_token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
+      
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirect')
+      router.push(redirectUrl || '/dashboard')
     } catch (err: any) {
       setError(err.message || 'Authentication failed. Please try again.')
     } finally {

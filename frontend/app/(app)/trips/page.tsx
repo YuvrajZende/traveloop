@@ -13,7 +13,7 @@ import {
 import { Search, Calendar, MapPin, Check } from 'lucide-react'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
-import { apiClient } from '@/lib/api'
+import { apiClient, getCoverImage } from '@/lib/api'
 import type { Trip } from '@/lib/types'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -91,7 +91,7 @@ export default function TripsPage() {
           status: t.status,
           startDate: t.start_date,
           endDate: t.end_date,
-          coverImage: t.cover_image_url || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80',
+          coverImage: getCoverImage(t.place),
           stops: [{ city: t.place }]
         }))
         setTripsData(mappedTrips)

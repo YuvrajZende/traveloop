@@ -1,10 +1,28 @@
+# Dependencies
 node_modules/
+frontend/node_modules/
+
+# Environment
 .env
-*.log
+.env.local
+.env.*.local
+
+# Build output
 .next/
 dist/
 build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# IDE
 .vscode/
-frontend/.next/
-frontend/node_modules/
+.idea/
+
+# Docker
+docker-compose.override.yml

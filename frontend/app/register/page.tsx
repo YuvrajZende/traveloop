@@ -46,7 +46,7 @@ export default function RegisterPage() {
       const generatedUsername = form.email.split('@')[0] + Math.floor(Math.random() * 1000)
       const defaultPassword = 'Traveloop@123'
 
-      await authApi.register({
+      const data = await authApi.register({
         username: generatedUsername,
         password: defaultPassword,
         email: form.email,
@@ -58,7 +58,8 @@ export default function RegisterPage() {
         additional_info: form.info
       })
       
-      alert(`Registered successfully!\n\nFor the demo, your generated credentials are:\nUsername/Email: ${form.email}\nPassword: ${defaultPassword}`)
+      // Set cookie for middleware auth guard
+      document.cookie = `traveloop_token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
       
       router.push('/dashboard')
     } catch (err: any) {

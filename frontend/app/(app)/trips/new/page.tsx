@@ -12,6 +12,7 @@ import { popularDestinations } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
 import { MapPin } from 'lucide-react'
 import { TripFlowSteps } from '@/components/trip-flow-steps'
+import { BackButton } from '@/components/back-button'
 
 const ALL_CITIES = [
   { city: 'Tokyo', country: 'Japan' }, { city: 'Osaka', country: 'Japan' }, { city: 'Kyoto', country: 'Japan' },
@@ -127,6 +128,7 @@ export default function NewTripPage() {
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-3xl mx-auto">
+      <BackButton href="/trips" />
       <TripFlowSteps current={0} />
 
       <h1 className="text-2xl font-bold tracking-tight">Plan a new trip</h1>

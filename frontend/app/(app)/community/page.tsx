@@ -11,6 +11,7 @@ import { mockTrips } from '@/lib/mock-data'
 import { Search, Heart, MessageCircle, Share2, Send, Check, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { apiClient } from '@/lib/api'
+import { BackButton } from '@/components/back-button'
 
 interface Reply { user: string; avatar: string; text: string; time: string }
 interface Post {
@@ -148,6 +149,7 @@ export default function CommunityPage() {
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-3xl mx-auto">
+      <BackButton href="/dashboard" />
       {/* Controls */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
